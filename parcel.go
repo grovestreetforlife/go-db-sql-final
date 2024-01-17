@@ -24,6 +24,9 @@ func (s ParcelStore) Add(p Parcel) (int, error) {
 	}
 
 	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
 
 	return int(id), err
 }
@@ -48,14 +51,17 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 		sql.Named("client", client))
 
 	if err != nil {
-		return res, err
+		return nil, err
 	}
+
+	defer rows.Close()
+
 	for rows.Next() {
 		p := Parcel{}
 		err = rows.Scan(&p.Number, &p.Client, &p.Status, &p.Address, &p.CreatedAt)
 
 		if err != nil {
-			return res, err
+			return nil, err
 		}
 		res = append(res, p)
 	}
