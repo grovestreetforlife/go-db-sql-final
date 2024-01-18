@@ -55,13 +55,13 @@ func TestAddGetDelete(t *testing.T) {
 
 	// get
 	p, err := store.Get(id)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, id, p.Number)
 	assert.Equal(t, parcel, p)
 
 	// delete
 	err = store.Delete(id)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = store.Get(id)
 	assert.ErrorIs(t, err, sql.ErrNoRows)
@@ -73,7 +73,7 @@ func TestSetAddress(t *testing.T) {
 	parcel := getTestParcel()
 	// add
 	id, err := store.Add(parcel)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, id)
 
 	// set address
@@ -83,7 +83,7 @@ func TestSetAddress(t *testing.T) {
 
 	// check
 	p, err := store.Get(id)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, newAddress, p.Address)
 }
 
@@ -93,16 +93,16 @@ func TestSetStatus(t *testing.T) {
 	parcel := getTestParcel()
 	// add
 	id, err := store.Add(parcel)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, id)
 
 	// set status
 	err = store.SetStatus(id, ParcelStatusDelivered)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// check
 	p, err := store.Get(id)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, ParcelStatusDelivered, p.Status)
 }
 
@@ -126,7 +126,7 @@ func TestGetByClient(t *testing.T) {
 	// add
 	for i := 0; i < len(parcels); i++ {
 		id, err := store.Add(parcels[i])
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, id)
 
 		// обновляем идентификатор у добавленной посылки
@@ -138,15 +138,15 @@ func TestGetByClient(t *testing.T) {
 
 	// get by client
 	storedParcels, err := store.GetByClient(client)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, len(storedParcels), len(parcelMap))
 	// check
 	for _, parcel := range storedParcels {
-		// в parcelMap лежат добавленные посылки, ключ - идентификатор посылки, значение - сама посылка
-		// убедитесь, что все посылки из storedParcels есть в parcelMap
-		// убедитесь, что значения полей полученных посылок заполнены верно
-		require.NotEmpty(t, parcelMap[parcel.Number])
-		require.Equal(t, parcelMap[parcel.Number], parcel)
-		assert.Equal(t, parcel, parcelMap[parcel.Number])
+		expectedParcel, ok := parcelMap[parcel.Number]
+		if !ok {
+			t.Fatal("Parcel not found in map")
+		}
+		require.NotEmpty(t, expectedParcel)
+		require.Equal(t, expectedParcel, parcel)
 	}
 }

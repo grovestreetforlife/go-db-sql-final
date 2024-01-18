@@ -28,7 +28,7 @@ func (s ParcelStore) Add(p Parcel) (int, error) {
 		return 0, err
 	}
 
-	return int(id), err
+	return int(id), nil
 }
 
 func (s ParcelStore) Get(number int) (Parcel, error) {
@@ -62,6 +62,9 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 
 		if err != nil {
 			return nil, err
+		}
+		if rows.Err() != nil {
+			return nil, rows.Err()
 		}
 		res = append(res, p)
 	}
