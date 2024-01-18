@@ -142,9 +142,7 @@ func TestGetByClient(t *testing.T) {
 	// check
 	for _, parcel := range storedParcels {
 		expectedParcel, ok := parcelMap[parcel.Number]
-		if !ok {
-			t.Fatal("Parcel not found in map")
-		}
+		require.True(t, ok)
 		require.NotEmpty(t, expectedParcel)
 		require.Equal(t, expectedParcel, parcel)
 	}
