@@ -45,25 +45,24 @@ func getTestParcel() Parcel {
 
 // TestAddGetDelete проверяет добавление, получение и удаление посылки
 func TestAddGetDelete(t *testing.T) {
+	var err error
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
 	// add
-	id, err := store.Add(parcel)
+	parcel.Number, err = store.Add(parcel)
 	require.NoError(t, err)
-	assert.NotEmpty(t, id)
-	parcel.Number = id
+	assert.NotEmpty(t, parcel.Number)
 
 	// get
-	p, err := store.Get(id)
+	p, err := store.Get(parcel.Number)
 	require.NoError(t, err)
-	assert.Equal(t, id, p.Number)
 	assert.Equal(t, parcel, p)
 
 	// delete
-	err = store.Delete(id)
+	err = store.Delete(parcel.Number)
 	require.NoError(t, err)
 
-	_, err = store.Get(id)
+	_, err = store.Get(parcel.Number)
 	assert.ErrorIs(t, err, sql.ErrNoRows)
 }
 
